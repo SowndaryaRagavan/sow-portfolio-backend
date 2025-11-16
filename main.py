@@ -1,15 +1,17 @@
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
+
 from db import get_db
 from models import Project
+
 
 app = FastAPI()
 
 # Allow your React app to access API
 origins = [
     "http://localhost:3000",  # React dev server
-    "https://sowndarya-ragavan.vercel.app",  # you can adjust for production
+    "https://sowndarya-ragavan.vercel.app",  # Production
 ]
 
 app.add_middleware(
@@ -20,7 +22,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 @app.get("/projects")
 def get_projects(db: Session = Depends(get_db)):
+    """
+    Fetch all projects from the database.
+    """
     projects = db.query(Project).all()
     return projects

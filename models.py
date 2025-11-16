@@ -1,9 +1,11 @@
 from sqlalchemy import Column, Integer, String, Text
-from sqlalchemy.dialects.postgresql import ARRAY
 from db import Base
-import json
+
 
 class Project(Base):
+    """
+    Database model for a project.
+    """
     __tablename__ = "projects"
 
     id = Column(Integer, primary_key=True, index=True)
