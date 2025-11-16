@@ -6,6 +6,7 @@ class Project(Base):
     """
     Database model for a project.
     """
+
     __tablename__ = "projects"
 
     id = Column(Integer, primary_key=True, index=True)
