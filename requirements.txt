@@ -5,12 +5,8 @@ sqlalchemy
 psycopg2-binary
 python-dotenv
 python-multipart
+supabase
 pytest
-requests 
+requests
 flake8
 black
-axios
-lucide-react
-zustand
-supabase
-python-dotenv
