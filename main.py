@@ -90,7 +90,7 @@ async def add_demo_project(
 
         # Upload PDF to Supabase
         supabase.storage.from_(BUCKET_NAME).upload(
-            filename, content, {"cacheControl": "3600", "upsert": True}
+            filename, content, {"cacheControl": "3600"}
         )
 
         doc_url = supabase.storage.from_(BUCKET_NAME).get_public_url(filename).public_url
