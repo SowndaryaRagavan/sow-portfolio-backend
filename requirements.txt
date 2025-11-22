@@ -1,5 +1,6 @@
 fastapi
 uvicorn
+pydantic
 sqlalchemy
 psycopg2-binary
 python-dotenv
@@ -8,3 +9,8 @@ pytest
 requests 
 flake8
 black
+axios
+lucide-react
+zustand
+supabase
+python-dotenv

@@ -16,3 +16,12 @@ class Project(Base):
     github_link = Column(String(200), nullable=True)
     demo_link = Column(String(200), nullable=True)
     image_url = Column(Text, nullable=True)  # store as stringified JSON
+
+
+class DemoProject(Base):
+    __tablename__ = "demo_projects"
+
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String, nullable=False)
+    description = Column(String)
+    doc_url = Column(String, nullable=True)  # PDF link
