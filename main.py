@@ -97,14 +97,15 @@ async def add_demo_project(
 ):
     try:
         content = await file.read()
-        safe_filename = re.sub(r"[^a-zA-Z0-9_.-]", "_", file.filename)
-        filename = f"uploads/{safe_filename}"
-        # Upload PDF to Supabase
+        filename = f"uploads/{file.filename}"
+
+        # Upload PDF with upsert=True to avoid duplicates
         supabase.storage.from_(BUCKET_NAME).upload(
-            filename, content, {"cacheControl": "3600"}
+            filename, content, {"cacheControl": "3600", "upsert": True}
         )
 
-        doc_url = supabase.storage.from_(BUCKET_NAME).get_public_url(filename).public_url
+        # Get public URL (string)
+        doc_url = supabase.storage.from_(BUCKET_NAME).get_public_url(filename)
 
         # Save record in DB
         db_project = DemoProject(title=title, description=description, doc_url=doc_url)
