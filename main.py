@@ -77,6 +77,16 @@ def get_demo_project(project_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Project not found")
     return project
 
+
+@app.get("/check-env")
+def check_env():
+    return {
+        "SUPABASE_URL": os.getenv("SUPABASE_URL"),
+        "SUPABASE_KEY_SET": bool(os.getenv("SUPABASE_KEY")),
+        "BUCKET_NAME": os.getenv("BUCKET_NAME")
+    }
+
+
 @app.post("/demo-projects/upload")
 async def add_demo_project(
     title: str = Form(...),
