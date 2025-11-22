@@ -85,30 +85,28 @@ async def add_demo_project(
     db: Session = Depends(get_db)
 ):
     try:
-        # Read file content
         content = await file.read()
-        
-        # Upload PDF to Supabase Storage
+        filename = f"uploads/{file.filename}"  # safer path
+
+        # Upload PDF to Supabase
         supabase.storage.from_(BUCKET_NAME).upload(
-            file.filename, content, {"cacheControl": "3600", "upsert": True}
+            filename, content, {"cacheControl": "3600", "upsert": True}
         )
 
-        # Get public URL
-        doc_url = supabase.storage.from_(BUCKET_NAME).get_public_url(file.filename).public_url
+        doc_url = supabase.storage.from_(BUCKET_NAME).get_public_url(filename).public_url
 
         # Save record in DB
-        db_project = DemoProject(
-            title=title,
-            description=description,
-            doc_url=doc_url
-        )
+        db_project = DemoProject(title=title, description=description, doc_url=doc_url)
         db.add(db_project)
         db.commit()
         db.refresh(db_project)
         return db_project
 
     except Exception as e:
+        import traceback
+        print(traceback.format_exc())
         raise HTTPException(status_code=500, detail=f"Upload failed: {str(e)}")
+
 
 @app.delete("/demo-projects/{project_id}")
 def delete_demo_project(project_id: int, db: Session = Depends(get_db)):
