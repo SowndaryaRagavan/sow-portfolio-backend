@@ -101,7 +101,7 @@ async def add_demo_project(
 
         # Upload PDF with upsert=True to avoid duplicates
         supabase.storage.from_(BUCKET_NAME).upload(
-            filename, content, {"cacheControl": "3600", "upsert": True}
+            filename, content, {"cacheControl": "3600", "upsert": "true"}
         )
 
         # Get public URL (string)
