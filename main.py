@@ -7,6 +7,7 @@ from db import get_db
 from models import Project, DemoProject
 import os
 from dotenv import load_dotenv
+import re
 
 load_dotenv()
 
@@ -96,8 +97,8 @@ async def add_demo_project(
 ):
     try:
         content = await file.read()
-        filename = f"uploads/{file.filename}"  # safer path
-
+        safe_filename = re.sub(r"[^a-zA-Z0-9_.-]", "_", file.filename)
+        filename = f"uploads/{safe_filename}"
         # Upload PDF to Supabase
         supabase.storage.from_(BUCKET_NAME).upload(
             filename, content, {"cacheControl": "3600"}
