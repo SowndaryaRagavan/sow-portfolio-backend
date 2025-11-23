@@ -95,8 +95,10 @@ async def add_demo_project(
     file: UploadFile = File(...),
     db: Session = Depends(get_db)
 ):
+    print("UPLOAD API HIT")
     try:
         content = await file.read()
+        print("FILE RECEIVED:", len(content))
         filename = f"uploads/{file.filename}"
 
         bucket = supabase.storage.from_(BUCKET_NAME)
