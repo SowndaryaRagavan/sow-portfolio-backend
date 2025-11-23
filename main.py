@@ -99,19 +99,26 @@ async def add_demo_project(
         content = await file.read()
         filename = f"uploads/{file.filename}"
 
-        # Upload (fixed)
-        supabase.storage.from_(BUCKET_NAME).upload(
-            path=filename,
-            file=content,
-            file_options={"cacheControl": "3600"},
-            upsert=True
+        bucket = supabase.storage.from_(BUCKET_NAME)
+
+        # Step 1 → If file exists, delete it
+        try:
+            bucket.remove([filename])
+        except:
+            pass  # ignore if not found
+
+        # Step 2 → Upload fresh file
+        bucket.upload(filename, content, {"cacheControl": "3600"})
+
+        # Step 3 → Get public URL
+        doc_url = bucket.get_public_url(filename)
+
+        # Step 4 → Save DB
+        db_project = DemoProject(
+            title=title,
+            description=description,
+            doc_url=doc_url
         )
-
-        # Get public URL
-        doc_url = supabase.storage.from_(BUCKET_NAME).get_public_url(filename)
-
-        # Save DB
-        db_project = DemoProject(title=title, description=description, doc_url=doc_url)
         db.add(db_project)
         db.commit()
         db.refresh(db_project)
