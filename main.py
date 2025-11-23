@@ -112,6 +112,7 @@ async def add_demo_project(
 
         # Step 3 → Get public URL
         doc_url = bucket.get_public_url(filename)
+        print("PUBLIC PDF URL:", doc_url)
 
         # Step 4 → Save DB
         db_project = DemoProject(
