@@ -99,19 +99,23 @@ async def add_demo_project(
         content = await file.read()
         filename = f"uploads/{file.filename}"
 
-        # Upload PDF with upsert=True to avoid duplicates
+        # Upload (fixed)
         supabase.storage.from_(BUCKET_NAME).upload(
-            filename, content, {"cacheControl": "3600", "upsert": "true"}
+            path=filename,
+            file=content,
+            file_options={"cacheControl": "3600"},
+            upsert=True
         )
 
-        # Get public URL (string)
+        # Get public URL
         doc_url = supabase.storage.from_(BUCKET_NAME).get_public_url(filename)
 
-        # Save record in DB
+        # Save DB
         db_project = DemoProject(title=title, description=description, doc_url=doc_url)
         db.add(db_project)
         db.commit()
         db.refresh(db_project)
+
         return db_project
 
     except Exception as e:
@@ -123,18 +127,30 @@ async def add_demo_project(
 @app.delete("/demo-projects/{project_id}")
 def delete_demo_project(project_id: int, db: Session = Depends(get_db)):
     project = db.query(DemoProject).filter(DemoProject.id == project_id).first()
+
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
 
-    # Delete PDF from Supabase Storage
-    if project.doc_url:
-        try:
-            filename = project.doc_url.split("/")[-1]
-            supabase.storage.from_(BUCKET_NAME).remove([filename])
-        except Exception as e:
-            raise HTTPException(status_code=500, detail=f"Failed to delete file: {str(e)}")
+    try:
+        # Extract correct relative Supabase path
+        # Example public URL:
+        # https://xxx.supabase.co/storage/v1/object/public/demo-pdfs/uploads/myfile.pdf
+        #
+        # We need: uploads/myfile.pdf
+        parts = project.doc_url.split("/")
+        relative_path = "/".join(parts[-2:])  # uploads/myfile.pdf
 
-    # Delete record from DB
-    db.delete(project)
-    db.commit()
-    return {"detail": "Project deleted successfully"}
+        # Delete from Supabase bucket
+        supabase.storage.from_(BUCKET_NAME).remove([relative_path])
+
+        # Delete from DB
+        db.delete(project)
+        db.commit()
+
+        return {"message": "Project deleted successfully"}
+
+    except Exception as e:
+        import traceback
+        print(traceback.format_exc())
+        raise HTTPException(status_code=500, detail=f"Delete failed: {str(e)}")
+
